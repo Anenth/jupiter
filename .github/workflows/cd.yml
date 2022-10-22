@@ -2,8 +2,6 @@ name: CD
 on:
   release:
     types: [published]
-    tags-ignore: # Disable for now
-      - v1.*
 
 env:
   GH_RELEASE_TAG: ${{ github.event.release.tag_name }}
@@ -43,13 +41,15 @@ jobs:
         with:
           node-version: '19.0.0'
           cache: 'yarn'
-      - name: 🚚  NPM Install
-        run: npm install
+      - name: 🚚  Install Yarn
+        run: npm install -g yarn
+      - name: 🚚  Install Packages
+        run: yarn
       - name: 🏗  Build
         env:
           NEXT_APP_VERSION: ${{ env.GH_RELEASE_TAG }}
           NEXT_ENV: 'production'
+        run: yarn build
 
-        run: npm run build:all
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only
